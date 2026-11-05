@@ -1,0 +1,125 @@
+@startuml
+title Caas Car Rental — Classes de domínio
+hide empty members
+skinparam classAttributeIconSize 0
+
+class ContaAcesso {
+  - id: UUID
+  - usuario: String
+  - senhaHash: String
+}
+
+abstract class Titular {
+  - id: UUID
+  - nome: String
+}
+
+class Cliente {
+  - rg: String
+  - cpf: String
+  - endereco: String
+  - profissao: String
+}
+
+abstract class Agente
+class Empresa
+class Banco
+
+class RepresentanteAgente {
+  - id: UUID
+  - nome: String
+}
+
+class VinculoEmpregaticio {
+  - rendimento: BigDecimal
+}
+
+class Empregador {
+  - id: UUID
+  - nome: String
+}
+
+class Veiculo {
+  - id: UUID
+  - matricula: String
+  - ano: int
+  - marca: String
+  - modelo: String
+  - placa: String
+}
+
+class PedidoAluguel {
+  - id: UUID
+  - criadoEm: Instant
+  - inicioPrevisto: LocalDate
+  - fimPrevisto: LocalDate
+  - revisao: int
+  - status: StatusPedido
+}
+
+enum StatusPedido {
+  EM_ANALISE
+  APROVADO
+  REPROVADO
+  CANCELADO
+  CONTRATADO
+}
+
+class ParecerFinanceiro {
+  - id: UUID
+  - emitidoEm: Instant
+  - revisaoAnalisada: int
+  - resultado: ResultadoParecer
+}
+
+enum ResultadoParecer {
+  FAVORAVEL
+  DESFAVORAVEL
+}
+
+class ContratoAluguel {
+  - id: UUID
+  - formalizadoEm: Instant
+  - tipo: String
+}
+
+class ContratoCredito {
+  - id: UUID
+}
+
+Titular <|-- Cliente
+Titular <|-- Agente
+Agente <|-- Empresa
+Agente <|-- Banco
+
+Cliente "0..1" -- "1" ContaAcesso : acessa com
+RepresentanteAgente "0..1" -- "1" ContaAcesso : acessa com
+Agente "1" -- "0..*" RepresentanteAgente : possui representantes
+Cliente "1" *-- "0..3" VinculoEmpregaticio : informa
+VinculoEmpregaticio "0..*" -- "1" Empregador : corresponde a
+
+Cliente "1" -- "0..*" PedidoAluguel : solicita
+Agente "0..*" -- "0..*" PedidoAluguel : atribuição de acesso
+PedidoAluguel "0..*" --> "1" Veiculo : refere-se a
+Veiculo "0..*" --> "1" Titular : proprietário registrado
+PedidoAluguel ..> StatusPedido
+PedidoAluguel "1" *-- "0..*" ParecerFinanceiro : recebe por revisão
+ParecerFinanceiro "0..*" --> "1" RepresentanteAgente : emitido por
+ParecerFinanceiro ..> ResultadoParecer
+PedidoAluguel "1" -- "0..1" ContratoAluguel : origina
+ContratoAluguel "0..*" --> "1" Titular : proprietário na formalização
+ContratoAluguel "0..1" -- "0..1" ContratoCredito : pode estar associado a
+ContratoCredito "0..*" --> "1" Banco : concedido por
+
+note bottom of ContaAcesso
+  Cada conta pertence exclusivamente a um
+  cliente ou a um representante de agente.
+  O nome de usuário é único.
+end note
+
+note bottom of ParecerFinanceiro
+  No máximo um parecer por revisão.
+  A formalização exige resultado favorável
+  para a revisão atual do pedido.
+end note
+@enduml

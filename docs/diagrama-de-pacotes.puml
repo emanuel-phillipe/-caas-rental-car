@@ -1,0 +1,42 @@
+@startuml
+title Caas Car Rental — Pacotes da visão lógica
+top to bottom direction
+
+package "Construção dinâmica das páginas web\ncaas-web-app · React e Vite" {
+  package "routes" as Rotas
+  package "features\nautenticação, pedidos e contratos" as Funcionalidades
+  package "api\ncliente HTTP" as ClienteHttp
+}
+
+package "Gestão de pedidos e contratos\nCaasAPI · Spring Boot" {
+  package "web\ncontroladores e DTOs" as Web
+  package "seguranca\nautenticação e controle de acesso" as Seguranca
+  package "aplicacao\nserviços de caso de uso" as Aplicacao
+  package "dominio\ncontas, contratantes, veículos, pedidos e contratos" as Dominio
+  package "aplicacao.portas\ninterfaces de persistência" as Portas
+  package "infraestrutura.persistencia\nadaptadores PostgreSQL" as Persistencia
+}
+
+Rotas ..> Funcionalidades
+Funcionalidades ..> ClienteHttp
+ClienteHttp ..> Web : contrato HTTP sobre HTTPS
+
+Web ..> Seguranca : identidade e perfil
+Web ..> Aplicacao : aciona casos de uso
+Seguranca ..> Aplicacao : autentica pela conta
+Aplicacao ..> Dominio : aplica regras de negócio
+Aplicacao ..> Portas : lê e grava por interface
+Portas ..> Dominio : referencia tipos do domínio
+Persistencia ..> Portas : implementa interfaces
+Persistencia ..> Dominio : mapeia entidades
+
+note bottom of Persistencia
+  Acessa o PostgreSQL hospedado no Supabase.
+end note
+
+legend bottom
+  A seta tracejada aponta para o pacote do qual o outro depende.
+  A ligação entre cliente HTTP e web representa um contrato de API.
+  Os nomes representam responsabilidades lógicas propostas.
+endlegend
+@enduml

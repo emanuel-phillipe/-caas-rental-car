@@ -1,0 +1,53 @@
+@startuml
+title Caas Car Rental — Casos de uso
+left to right direction
+
+actor "Visitante" as Visitante
+actor "Usuário cadastrado" as Usuario
+actor "Cliente" as Cliente
+actor "Representante\nde agente" as Agente
+actor "Representante\nde empresa" as Empresa
+actor "Representante\nde banco" as Banco
+
+Usuario <|-- Cliente
+Usuario <|-- Agente
+Agente <|-- Empresa
+Agente <|-- Banco
+
+rectangle "Caas Car Rental" {
+  usecase "UC01\nCadastrar cliente" as UC01
+  usecase "UC02\nAutenticar com usuário e senha" as UC02
+  usecase "UC03\nCriar pedido de aluguel" as UC03
+  usecase "UC04\nConsultar próprios pedidos" as UC04
+  usecase "UC05\nAlterar pedido de aluguel" as UC05
+  usecase "UC06\nCancelar próprio pedido" as UC06
+  usecase "UC07\nConsultar pedidos atribuídos" as UC07
+  usecase "UC08\nAvaliar pedido financeiramente" as UC08
+  usecase "UC09\nFormalizar contrato de aluguel" as UC09
+  usecase "UC10\nVincular contrato de crédito" as UC10
+}
+
+Visitante -- UC01
+Usuario -- UC02
+Cliente -- UC03
+Cliente -- UC04
+Cliente -- UC05
+Cliente -- UC06
+Agente -- UC05
+Agente -- UC07
+Agente -- UC08
+Agente -- UC09
+
+UC10 ..> UC09 : <<extend>>\n[há crédito concedido por banco agente]
+
+note right of UC09
+  Requer parecer favorável
+  para a revisão atual do pedido.
+end note
+
+legend bottom
+  UC03 a UC10 exigem sessão autenticada e autorização para a operação.
+  Empresas e bancos atuam por meio de seus representantes.
+  O vínculo de crédito é opcional na formalização.
+endlegend
+@enduml
